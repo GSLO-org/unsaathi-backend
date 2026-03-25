@@ -62,11 +62,30 @@ router.put('/:id', auth, async (req, res) => {
   }
 });
 
-router.get('/public', async (req, res) => {
-  const faqs = await FAQ.find({ isActive: true }).sort({ order: 1 });
-  res.json(faqs.map(f => ({ question: f.question, answer: f.answer })));
-});
+// router.get('/public', async (req, res) => {
+//   const faqs = await FAQ.find({ isActive: true }).sort({ order: 1 });
+//   res.json(faqs.map(f => ({ question: f.question, answer: f.answer })));
+// });
 
+router.get('/by-category/:category', async (req, res) => {
+  const { category } = req.params;
+
+  try {
+    const faqs = await FAQ.find({
+      isActive: true,
+      category: category.toLowerCase().trim()
+    }).sort({ order: 1 });
+
+    res.json(
+      faqs.map(f => ({
+        question: f.question,
+        answer: f.answer
+      }))
+    );
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 // ADMIN DELETE - BULLETPROOF  
 router.delete('/:id', auth, async (req, res) => {
